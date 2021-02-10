@@ -4,7 +4,7 @@ library(gridExtra)
 library(factoextra)
 
 #set output path.----
-output.path <- 'figures/Fig._3.pdf'
+output.path <- 'figures/Fig._3.png'
 
 #load data.----
 d <- readRDS('data/phase1_for_analysis.rds')
@@ -74,7 +74,7 @@ for(i in 1:2){
 
 
 #Specify png output.----
-pdf(output.path, width=9, height= 6)
+png(output.path, width=9, height= 6, units='in', res=300)
 
 #Drop panels with grid arrange.----
 grid.arrange(ag.pca.plot, ag.scatter[[1]], ag.scatter[[2]],
