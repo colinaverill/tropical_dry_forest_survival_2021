@@ -123,7 +123,7 @@ rt.pca <- rt.pca[rt.pca$spp %in% gs.sub,]
 lab <- rt.pca$spp
 rt.pca$spp <- NULL
 rownames(rt.pca) <- lab
-colnames(rt.pca) <- c('root diameter','SRL','RTD','lateral extent','root depth','RMF')
+colnames(rt.pca) <- c('root diameter','SRL','RTD','root lateral extent','root depth','RMF')
 rt.pca.mod <- prcomp(rt.pca, center = T, scale = T)
 rt.pca.out <- rt.pca.mod$x[,1:3]
 colnames(rt.pca.out) <- c('bg.PC1','bg.PC2','bg.PC3')
