@@ -2,6 +2,7 @@
 rm(list=ls())
 library(corrplot)
 library(RColorBrewer)
+library(weights)
 
 #set output path.----
 output.path <- 'figures/Fig._S2.png'
@@ -26,16 +27,18 @@ colnames(corr.dat) <- c('petiole length', 'thickness', 'leaf area', 'SLA', 'leaf
                         'total leaf area', 'total leaf perimeter', 'C:N', ':paste(delta^{13},"C")', ':paste(psi[diurnal])',
                         'seed mass', 'wood density', 'E', 'Amax', 'WUE', 'root diameter','SRL','RTD','root lateral extent','root depth','RMF')
 
-# generate pearson correlation matrix and get p-values
-M <- cor(corr.dat, method = "pearson")
-res1 <- cor.mtest(as.matrix(corr.dat), conf.level = .95)
+# generate pearson correlation matrix w/ bootstrapped standard errors and p - values
+boot.cor <- wtd.cor(as.matrix(corr.dat), bootse = T,bootp = T,bootn = 1000)
+M <- boot.cor$bootcor
+res1 <- boot.cor$p.value
+
 
 ## plot a pretty correlation matrix
 #Specify png output.----
 png(output.path, width=9, height= 6, units='in', res=300)
 
 # plot the correlation matrix 
-corrplot(M, p.mat = res1$p, method = "square", type = "upper", tl.col = "black",
+corrplot(M, p.mat = res1, method = "square", type = "upper", tl.col = "black",
                 sig.level = c(.001, .01, 0.05), pch.cex = .9,
                 insig = "label_sig", pch.col = "white",  diag = FALSE,
                 col = brewer.pal(n = 8, name = "RdBu"))
