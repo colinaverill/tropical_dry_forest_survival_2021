@@ -28,10 +28,9 @@ colnames(corr.dat) <- c('petiole length', 'thickness', 'leaf area', 'SLA', 'leaf
                         'seed mass', 'wood density', 'E', 'Amax', 'WUE', 'root diameter','SRL','RTD','root lateral extent','root depth','RMF')
 
 # generate pearson correlation matrix w/ bootstrapped standard errors and p - values
-boot.cor <- wtd.cor(as.matrix(corr.dat), bootse = T,bootp = T,bootn = 1000)
+boot.cor <- wtd.cor(as.matrix(corr.dat), bootse = T, bootp = T, bootn = 10000)
 M <- boot.cor$bootcor
 res1 <- boot.cor$p.value
-
 
 ## plot a pretty correlation matrix
 #Specify png output.----
