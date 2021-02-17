@@ -48,6 +48,11 @@ for(i in 1:length(dat.list)){
 }
 
 #global chart options.----
+line = 0.6
+cex = 0.9
+side = 3
+adj=-.34
+
 limy <- c(0,1)
 magma.cols <- magma(100, begin = 0)
 cols <- c(magma.cols[80], magma.cols[60], magma.cols[40])
@@ -64,15 +69,17 @@ layout(m)
 
 
 #Panel 1 - interaction plot.----
-plot(pred.list[[1]] ~ x, bty = 'l', cex = 0, ylab = NA, xlab = NA, ylim = c(0,1))
+plot(pred.list[[1]] ~ x, bty = 'l', cex = 0, ylab = NA, xlab = NA, ylim = c(0,1), cex.axis = 1.1)
 for(i in 1:length(pred.list)){
   lines(smooth.spline(pred.list[[i]] ~ x), col = cols[i], lwd = 2)
   polygon(c(x, rev(x)),c(se.list[[i]]$hi, rev(se.list[[i]]$lo)), col=adjustcolor(cols[i], trans), lty=0)
 }
 
 #axis labels
-mtext('estimated survival rate', side = 2, line = 2.5, cex = 1)
-mtext('relative growth rate'   , side = 1, line = 2.5, cex = 1)
+mtext('estimated survival rate (%)', side = 2, line = 2.5, cex = 0.9)
+rgr.lab <- expression(paste("relative growth rate (ln[cm] day"^"-1",")"))
+mtext(rgr.lab, side = 1, line = 3, cex = 0.9)
+mtext("(A)", side=side, line=line, cex=cex, adj=-0.13)
 
 #legend.
 legend(x = 0.0008, y = 1, c('thick and deep','average','thin and shallow'), col = cols, bty = 'n', lty = 1, lwd = 2, cex = 1.2)
@@ -81,15 +88,17 @@ legend(x = 0.0008, y = 1, c('thick and deep','average','thin and shallow'), col 
 plot(inv.logit(lo.detrend) ~ d$bg.PC1, pch = 16, cex = 1.5, bty = 'l', ylab = NA, xlab = NA, ylim = c(0,1))
 abline(lm(inv.logit(lo.detrend) ~ d$bg.PC1), lwd  = 2, lty = 2)
 mtext('survival at low RGR', side = 3, line = -1.0, cex = 0.7)
-mtext('survival rate'      , side = 2, line =  2.2, cex = 0.7)
+mtext('survival rate (%)'      , side = 2, line =  2.2, cex = 0.7)
 mtext('belowground PC1'    , side = 1, line =  2.2, cex = 0.7)
+mtext("(B)", side=side, line=line, cex=cex, adj=adj)
 
 #Panel 3 - survival vs. PC1 @high RGR.----
 plot(inv.logit(hi.detrend) ~ d$bg.PC1, pch = 16, cex = 1.5, bty = 'l', ylab = NA, xlab = NA, ylim = c(0,1))
 abline(lm(inv.logit(hi.detrend) ~ d$bg.PC1), lwd  = 2, lty = 1)
 mtext('survival at high RGR', side = 3, line = -1.0, cex = 0.7)
-mtext('survival rate'       , side = 2, line =  2.2, cex = 0.7)
+mtext('survival rate (%)'       , side = 2, line =  2.2, cex = 0.7)
 mtext('belowground PC1'     , side = 1, line =  2.2, cex = 0.7)
+mtext("(C)", side=side, line=line, cex=cex, adj=adj)
 
 #end plot.----
 dev.off()

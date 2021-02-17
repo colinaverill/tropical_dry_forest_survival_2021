@@ -12,7 +12,14 @@ d <- readRDS('data/surv_models_fitted.rds')
 #png save line.----
 png(output.path, width=9, height= 5, units='in', res=300)
 
+
+
 #global plot settings.----
+line = 1
+cex = 1.2
+side = 3
+adj=-.25
+
 par(mfrow = c(1,2),
     mar = c(6,5,2,2))
 olab.cex <- 1.2
@@ -27,6 +34,7 @@ par(lty = 0) #set outer lines to zero width.
 barplot(z$rsq.adj, col = 'hotpink', xaxt='n', horiz = F, ylim = c(-0.1, 0.8))
 ylab <- bquote({R^2}[adj])
 mtext(ylab, side = 2, line=2.5, cex = olab.cex)
+mtext("(A)", side=side, line=line, cex=cex, adj=adj)
 par(lty = lty.o) #reset graphic setting.
 pos <- c(0:4)
 N <- 5
@@ -46,10 +54,12 @@ rsq.lab <- bquote({R^2}[adj] == .(rsq))
 #drop rsq label
 #mtext('Best model:\n belowground traits + RGR', side = 3, line = -2, adj = 0.05)
 mtext('best model', side = 3, line = -1, adj = 0.05)
+mtext("(B)", side=side, line=line, cex=cex, adj=adj)
 mtext(rsq.lab, side = 3, line = -2.5, adj = 0.05)
 #x and y axis labels.
-mtext('observed survival' , line = 2.5, side = 2, cex = olab.cex)
-mtext('estimated survival', line = 2.5, side = 1, cex = olab.cex)
+mtext('observed survival (%)' , line = 2.5, side = 2, cex = olab.cex)
+mtext('estimated survival (%)', line = 2.5, side = 1, cex = olab.cex)
+
 
 #end plot.----
 dev.off()

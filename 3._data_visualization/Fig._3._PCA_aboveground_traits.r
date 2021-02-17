@@ -34,19 +34,22 @@ colnames(ag.pc.rsq) <- c('rsq','trait')
 ag.pc.rsq <- ag.pc.rsq[order(ag.pc.rsq$rsq, decreasing = T),]
 
 #specify trait labels.
-ag.pca.traitlab
-ag.trait.lab <- c('crown radius','total leaf area')
-subpanel.lab <- c('B','C')
+ag.trait.lab <- c('crown radius (cm)',expression(paste("total leaf area (cm"^"2",")")))
+subpanel.lab <- c('(B)','(C)')
 
-#Make PCA plot and top 4 regressions w/ PC1 plot.----
+
+#Make PCA plot and top 2 regressions w/ PC1 plot.----
 p.var.1 <- round(summary(ag.pca)$importance[2,1]*100,1) #grab proportion variance explained.
 p.var.2 <- round(summary(ag.pca)$importance[2,2]*100,1) #grab proportion variance explained.
 ag.pca.plot <- fviz_pca_biplot(ag.pca, geom='point', repel = T,
-                               xlab = paste0('PC1 (',p.var.1,'% variance explained)'),
-                               ylab = paste0('PC2 (',p.var.2,'% variance explained)'),
+                               xlab = paste0('aboveground PC1 (',p.var.1,'% variance explained)'),
+                               ylab = paste0('aboveground PC2 (',p.var.2,'% variance explained)'),
                                title = NULL,
                                select.var = list(contrib = 10)) + #subset to 10 most important vectors
-  labs(tag = 'A')
+                               labs(tag = '(A)')+
+                theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +    #drop gridlines
+                theme(axis.text=element_text(size=10)) +    #increase axis text size.
+                theme(axis.line = element_line(colour = "black")) # add axis line
 
 ag.scatter <- list()
 for(i in 1:2){
@@ -58,11 +61,11 @@ for(i in 1:2){
     theme_bw()  + #drop gray background.
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +   #drop gridlines
     xlab(ag.trait.lab[i]) +  #x axis label.
-    ylab(expression(paste("Aboveground PC1"))) + #y axis label.
+    ylab(expression(paste("aboveground PC1"))) + #y axis label.
     theme(axis.line = element_line(colour = "black"), panel.border = element_blank()) + #add x-y axes, drop bounding box. 
-    scale_y_continuous(expand = expand_scale(mult = c(.01, .02))) + #change where y-axis cuts off.
-    scale_x_continuous(expand = expand_scale(mult = c(.01, .01)))  + #change where x-axis cuts off.
-    theme(axis.text.x=element_text(size=rel(0.5))) +                  #reduce x-axis text size.
+    scale_y_continuous(expand = expand_scale(mult = c(.02, .02))) + #change where y-axis cuts off.
+    scale_x_continuous(expand = expand_scale(mult = c(.02, .03)))  + #change where x-axis cuts off.
+    theme(axis.text.x=element_text(size=rel(0.9))) +                  #reduce x-axis text size.
     geom_abline(slope = coef(fit)[2], intercept = coef(fit)[1], size = 1) + #add regression line.
     #theme(plot.margin = unit(c(unit.scale,2*unit.scale,2*unit.scale,unit.scale), 'cm')) +
     #geom_text(x=0.50, y = 0.05, label=expression(paste(R^2,'= 0.41'))) +

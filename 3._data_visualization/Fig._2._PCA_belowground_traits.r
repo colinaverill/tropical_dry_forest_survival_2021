@@ -42,19 +42,23 @@ bg.pc.rsq <- bg.pc.rsq[order(bg.pc.rsq$rsq, decreasing = T),]
 bg.pc.rsq <- bg.pc.rsq[bg.pc.rsq$trait %in% c('Mean_Dia_C_mm','rootDepth_cm'),]
 
 #specify trait labels.
-bg.trait.lab <- c('root diameter','root depth')
-subpanel.lab <- c('B','C')
+bg.trait.lab <- c('root diameter (mm)','root depth (cm)')
+subpanel.lab <- c('(B)','(C)')
 
-#Make PCA plot and favorite 2 regressions w/ PC1 plot.----
+#Make PCA plot and top 2 regressions w/ PC1 plot.----
 #bg.pca.plot <- ggbiplot(bg.pca,  varname.adjust = 1.1) + labs(tag = 'A')
 #drop biplot.
 p.var.1 <- round(summary(bg.pca)$importance[2,1]*100,1) #grab proportion variance explained.
 p.var.2 <- round(summary(bg.pca)$importance[2,2]*100,1) #grab proportion variance explained.
 bg.pca.plot <- fviz_pca_biplot(bg.pca, geom='point', repel = T,
-                               xlab = paste0('PC1 (',p.var.1,'% variance explained)'),
-                               ylab = paste0('PC2 (',p.var.2,'% variance explained)'),
+                               xlab = paste0('belowground PC1 (',p.var.1,'% variance explained)'),
+                               ylab = paste0('belowground PC2 (',p.var.2,'% variance explained)'),
                                title = NULL) +
-                               labs(tag = 'A')
+                               labs(tag = '(A)')+
+               theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +    #drop gridlines
+               theme(axis.text=element_text(size=10)) +    #increase axis text size.
+               theme(axis.line = element_line(colour = "black")) # add axis line
+  
 
 bg.scatter <- list()
 for(i in 1:2){
@@ -66,11 +70,11 @@ for(i in 1:2){
     theme_bw()  + #drop gray background.
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +   #drop gridlines
     xlab(bg.trait.lab[i]) +  #x axis label.
-    ylab(expression(paste("Belowground PC1"))) + #y axis label.
+    ylab(expression(paste("belowground PC1"))) + #y axis label.
     theme(axis.line = element_line(colour = "black"), panel.border = element_blank()) + #add x-y axes, drop bounding box. 
-    scale_y_continuous(expand = expand_scale(mult = c(.01, .02))) + #change where y-axis cuts off.
-    scale_x_continuous(expand = expand_scale(mult = c(.01, .01)))  + #change where x-axis cuts off.
-    theme(axis.text.x=element_text(size=rel(0.5))) +                  #reduce x-axis text size.
+    scale_y_continuous(expand = expand_scale(mult = c(.02, .02))) + #change where y-axis cuts off.
+    scale_x_continuous(expand = expand_scale(mult = c(.02, .02)))  + #change where x-axis cuts off.
+    theme(axis.text.x=element_text(size=rel(0.9))) +                  #reduce x-axis text size.
     geom_abline(slope = coef(fit)[2], intercept = coef(fit)[1], size = 1) + #add regression line.
     labs(tag = subpanel.lab[i])
   }

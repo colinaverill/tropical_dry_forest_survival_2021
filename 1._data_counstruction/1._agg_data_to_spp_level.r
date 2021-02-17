@@ -123,8 +123,7 @@ rt.pca <- rt.pca[rt.pca$spp %in% gs.sub,]
 lab <- rt.pca$spp
 rt.pca$spp <- NULL
 rownames(rt.pca) <- lab
-colnames(rt.pca) <- c('root diam.','SRL','RTD','lateral extent','root depth','RMF')
-
+colnames(rt.pca) <- c('root diameter','SRL','RTD','root lateral extent','root depth','RMF')
 rt.pca.mod <- prcomp(rt.pca, center = T, scale = T)
 rt.pca.out <- rt.pca.mod$x[,1:3]
 colnames(rt.pca.out) <- c('bg.PC1','bg.PC2','bg.PC3')
@@ -135,6 +134,13 @@ lf.pca <- lf.avg
 lf.pca <- lf.pca[lf.pca$spp %in% gs.sub,]
 lab <- lf.pca$spp
 rownames(lf.pca) <- lab
+colnames(lf.pca) <- c('spp','petiole length', 'thickness', 'leaf area', 'SLA', 'leaf density', 'crown radius', 'SMF', 'LMF',
+                     'total leaf area', 'total leaf perimeter', 'C:N', 'd13C', 'leaf habit', 'leaf compoundness', 'deltaLWP',
+                    'dispersal mode', 'seed mass', 'wood density', 'E', 'Amax', 'WUE')
+# try to fix delta 13 C symbol
+#colnames(lf.pca) <- c('spp','petiole length', 'thickness', 'leaf area', 'SLA', 'leaf density', 'crown radius', 'SMF', 'LMF',
+ #                     'total leaf area', 'total leaf perimeter', 'C:N', expression(paste(delta^{13}, "C")), 'leaf habit', 'leaf compoundness', 'deltaLWP',
+  #                    'dispersal mode', 'seed mass', 'wood density', 'E', 'Amax', 'WUE')
 lf.pca$spp <- NULL
 lf.pca.mod <- prcomp(lf.pca, center = T, scale = T)
 lf.pca.out <- lf.pca.mod$x[,1:3]
