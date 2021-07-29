@@ -117,7 +117,7 @@ lf.avg <- merge(lf.avg, ps.avg)
 #only use species we have RGR for.
 gs.sub <- as.character(gs.avg[complete.cases(gs.avg),]$spp)
 
-#root PCA
+#belowground PCA
 rt.pca <- rt.avg
 rt.pca <- rt.pca[rt.pca$spp %in% gs.sub,]
 lab <- rt.pca$spp
@@ -129,7 +129,7 @@ rt.pca.out <- rt.pca.mod$x[,1:3]
 colnames(rt.pca.out) <- c('bg.PC1','bg.PC2','bg.PC3')
 rownames(rt.pca.out) <- lab
 
-#foliar PCA
+#aboveground PCA
 lf.pca <- lf.avg
 lf.pca <- lf.pca[lf.pca$spp %in% gs.sub,]
 lab <- lf.pca$spp

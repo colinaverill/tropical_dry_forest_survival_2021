@@ -4,7 +4,7 @@ rm(list=ls())
 library(boot)
 
 #set output path.----
-output.path <- 'figures/Fig._1.png'
+output.path <- 'figures/Fig._SX_whole-plant_model_compare.png'
 
 #load data.----
 d <- readRDS('data/surv_models_fitted.rds')
@@ -26,9 +26,12 @@ olab.cex <- 1.2
 
 #panel 1- rsq adjusted values ranked.----
 z <- d$rsq.sum
-z <- z[!(grepl('wp', z$mod.lab)),] #original figure did not have whole-plant (wp) models.
 #z <- z[order(z$rsq.adj),]
-z$lab <- c('aboveground\n traits','belowground\n traits','relative growth\n rate (RGR)','aboveground\n traits + RGR','belowground\n traits + RGR')
+z$lab <- c('aboveground\n traits','belowground\n traits','whole-plant\n traits',
+           'relative growth\n rate (RGR)',
+           'aboveground\n traits + RGR',
+           'belowground\n traits + RGR',
+           'whole-plant\n traits + RGR')
 
 lty.o <- par("lty") #remember current grahpic setting.
 par(lty = 0) #set outer lines to zero width.
@@ -37,13 +40,10 @@ ylab <- bquote({R^2}[adj])
 mtext(ylab, side = 2, line=2.5, cex = olab.cex)
 mtext("(A)", side=side, line=line, cex=cex, adj=adj)
 par(lty = lty.o) #reset graphic setting.
-pos <- c(0:4)
-N <- 5
-pos <- seq(0,N, by = N/4)
+pos <- c(0:(length(z$lab)-1))
+N <- 7.25
+pos <- seq(0,N, by = N/6)
 text(cex=1, x= 0.7+pos, y=-0.02, z$lab, xpd=TRUE, srt = 90, adj=1)
-#text(cex=1, x= 0.7+pos, y=-0.02, z$lab, xpd=TRUE, srt = 45, adj=1)
-#text(cex=1, x= 0.7+pos, y=1, z$lab, xpd=TRUE, srt = 90, adj=3)
-
 
 #Panel 2 - visualize best model.----
 m <- d$models$m.rgr_bg
