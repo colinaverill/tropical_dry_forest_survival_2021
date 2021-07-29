@@ -11,3 +11,15 @@ All raw data is stored in the subdirectory "data".
 3._data_visualization - this subdirectory contains code to generate all figures in the manuscript.
 
 functions - this sub directory contains any custom functions used in data construction or analysis pipelines.
+
+packages - this project depends on the following R-packages:
+phytools
+caper
+MCMCglmm
+boot
+corrplot
+RColorBrewer
+weights
+gridExtra
+factoextra
+viridis
