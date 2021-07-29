@@ -79,13 +79,18 @@ mod.list.phylo <- list(m.ag, m.bg, m.wp, m.rgr, m.ag_rgr, m.bg_rgr, m.wp_rgr)
 mod.lab  <-    c('m.ag','m.bg','m.wp','m.rgr','m.rgr_ag','m.rgr_bg','m.rgr_wp')
 names(mod.list.phylo) <- mod.lab
 
+#add fitted values to model objects.
+for(i in 1:length(mod.list.phylo)){
+  mod.list.phylo[[i]]$fitted.values <- predict(mod.list.phylo[[i]])
+}
+
 #get rsq and rsq.adj dataframe.
 rsq     <- list()
 rsq.adj <- list()
 for(i in 1:length(mod.list.phylo)){
   y <- dat[complete.cases(dat),]$surv.logit
   model <- mod.list.phylo[[i]]
-  x <- predict(model)
+  x <- model$fitted.values
   n.pred <- model$Fixed$nfl - 1
   fit <- lm(y~x)
   rsq    [[i]] <- summary(fit)$r.squared
