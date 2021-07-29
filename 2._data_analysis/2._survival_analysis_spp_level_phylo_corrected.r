@@ -84,11 +84,13 @@ rsq     <- list()
 rsq.adj <- list()
 for(i in 1:length(mod.list.phylo)){
   y <- dat[complete.cases(dat),]$surv.logit
-  x <- fitted(mod.list.phylo[[i]])
-  x <- predict(mod.list.phylo[[i]])
+  model <- mod.list.phylo[[i]]
+  x <- predict(model)
+  n.pred <- model$Fixed$nfl - 1
   fit <- lm(y~x)
   rsq    [[i]] <- summary(fit)$r.squared
-  rsq.adj[[i]] <- summary(fit)$adj.r.squared
+  rsq.adj.est <- 1 - (1-rsq[[i]])*(nrow(dat) - 1) / (nrow(dat) - n.pred - 1)
+  rsq.adj[[i]] <- rsq.adj.est
 }
 rsq     <- unlist(rsq)
 rsq.adj <- unlist(rsq.adj)
