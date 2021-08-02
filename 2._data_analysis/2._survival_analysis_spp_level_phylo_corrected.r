@@ -26,10 +26,10 @@ priors <- list(R=list(V=1, nu=0.002), G=list(G1=list(V=1, nu=0.002)))
 
 
 #clean up species names so we can actually match phylogeny to dataframe.
-spp <- as.character(dat$spp)[order(as.character(dat$spp))]
-spp <- spp[!(spp %in% c("SAMSAM"))]
+spp <- as.character(dat$spp)
+spp <- ifelse(spp == 'SAMSAM','ALBSAM',spp)
+spp <- spp[order(spp)]
 species <- phy$tip.label[order(phy$tip.label)]
-species <- species[-1]
 ref <- data.frame(spp,species)
 dat <- merge(dat,ref, all.x=T)
 dat <- dat[complete.cases(dat),]

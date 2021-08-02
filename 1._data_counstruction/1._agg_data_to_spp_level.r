@@ -37,7 +37,7 @@ lf.sub$LDMC_mg_g <- NULL
 #drop leaf tougness because one of our species had leaves too small to measure it.
 lf.sub$toughness_g <- NULL
 
-#Drop some other traits that are correlated with other traits and hard to justify. Mostly image analysis auto-output.
+#Drop some other aboveground traits that are correlated with other traits and hard to justify. Mostly image analysis auto-output.----
 lf.sub$perimeter_wholeLeaf_cm            <- NULL
 lf.sub$minorAxisLength_largestLeaflet_cm <- NULL
 lf.sub$majorAxisLength_largestLeaflet_cm <- NULL
@@ -47,7 +47,7 @@ lf.sub$feretDiameterRatio_largestLeaflet_dimless <- NULL
 lf.sub$area_largestLeaflet_cm2 <- NULL
 lf.sub$perimeter_largestLeaflet_cm <- NULL
 
-#aggregate by species.
+#aggregate by aboveground traits by species.
 lf.sub$spp <- substr(lf.sub$plantID, 1, 6)
 lf.sub$plantID <- NULL
 lf.avg <- aggregate(. ~ spp, data = lf.sub, FUN=mean, na.rm=TRUE, na.action=NULL)
@@ -83,6 +83,7 @@ colnames(ps.avg) <- c('spp','E','Amax','WUE')
 lf.avg <- cbind(lf.avg, wp.avg[,c('crownRadius_cm','SMF','LMF','area_allLeaves_cm2','perimeter_allLeaves_cm','cn.foliar','d13C')])
 rt.avg <- cbind(rt.avg, wp.avg[,c('rootLateral_cm','rootDepth_cm','RMF')])
 
+
 #clean growth-survival, other wp traits.----
 gs.sub <- gs[,c('species','spp','leafHabit','leafHabitSimple','leafType','dispersalType',
                 'phase1_surv_yr1','phase1_surv_yr2','phase1_RGR_yr1','phase1_RGR_yr2',
@@ -112,6 +113,16 @@ gs.avg$phase1_surv_yr2 <- crib_fun(gs.avg$phase1_surv_yr2 / 100)
 ps.avg <- ps.avg[ps.avg$spp %in% lf.avg$spp,]
 ps.avg <- ps.avg[order(match(ps.avg$spp, lf.avg$spp)),]
 lf.avg <- merge(lf.avg, ps.avg)
+
+#Drop aboveground traits for a reviewer.----
+lf.avg$E <- NULL
+lf.avg$d13C <- NULL
+lf.avg$perimeter_allLeaves_cm <- NULL
+lf.avg$leaf.compound <- NULL
+lf.avg$woodDensity <- NULL
+lf.avg$WUE <- NULL
+lf.avg$petioleLength_mm <- NULL
+lf.avg$LMF <- NULL
 
 #Generate PC1-3 vectors for above and belowground traits.----
 #only use species we have RGR for.
