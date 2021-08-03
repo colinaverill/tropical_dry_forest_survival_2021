@@ -4,7 +4,7 @@ library(gridExtra)
 library(factoextra)
 
 #set output path.----
-output.path <- 'figures/Fig._SX_whole-plant_PCA.png'
+output.path <- 'figures/Reviewer_Fig._2_whole-plant_PCA.png'
 
 #load data.----
 d <- readRDS('data/phase1_for_analysis.rds')
@@ -62,7 +62,7 @@ for(i in 1:2){
     theme_bw()  + #drop gray background.
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +   #drop gridlines
     xlab(wp.trait.lab[i]) +  #x axis label.
-    ylab(expression(paste("aboveground PC1"))) + #y axis label.
+    ylab(expression(paste("whole-plant PC1"))) + #y axis label.
     theme(axis.line = element_line(colour = "black"), panel.border = element_blank()) + #add x-y axes, drop bounding box. 
     scale_y_continuous(expand = expand_scale(mult = c(.02, .02))) + #change where y-axis cuts off.
     scale_x_continuous(expand = expand_scale(mult = c(.02, .03)))  + #change where x-axis cuts off.
