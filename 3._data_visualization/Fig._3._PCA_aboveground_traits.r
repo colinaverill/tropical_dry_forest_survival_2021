@@ -36,6 +36,7 @@ ag.pc.rsq <- ag.pc.rsq[order(ag.pc.rsq$rsq, decreasing = T),]
 #specify trait labels.
 ag.trait.lab <- c('crown radius (cm)',expression(paste("total leaf area (cm"^"2",")")))
 subpanel.lab <- c('(B)','(C)')
+ag.pc.rsq.annotate <- c(expression(~R^2~" = 0.87"), expression(~R^2~" = 0.71")) 
 
 
 #Make PCA plot and top 2 regressions w/ PC1 plot.----
@@ -69,7 +70,10 @@ for(i in 1:2){
     geom_abline(slope = coef(fit)[2], intercept = coef(fit)[1], size = 1) + #add regression line.
     #theme(plot.margin = unit(c(unit.scale,2*unit.scale,2*unit.scale,unit.scale), 'cm')) +
     #geom_text(x=0.50, y = 0.05, label=expression(paste(R^2,'= 0.41'))) +
-    labs(tag = subpanel.lab[i])
+    labs(tag = subpanel.lab[i])+
+    ggtitle(ag.pc.rsq.annotate[i])+
+    theme(plot.title = element_text(size=10))
+  
 }
 
 

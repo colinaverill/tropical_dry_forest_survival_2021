@@ -78,7 +78,8 @@ for(i in 1:2){
     theme(axis.text.x=element_text(size=rel(0.9))) +                  #reduce x-axis text size.
     geom_abline(slope = coef(fit)[2], intercept = coef(fit)[1], size = 1) + #add regression line.
     labs(tag = subpanel.lab[i])+
-    ggtitle(bg.pc.rsq.annotate[i])
+    ggtitle(bg.pc.rsq.annotate[i])+
+    theme(plot.title = element_text(size=10))
   
   }
 
