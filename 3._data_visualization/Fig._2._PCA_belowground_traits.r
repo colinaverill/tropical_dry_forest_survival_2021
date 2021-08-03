@@ -38,12 +38,13 @@ bg.pc.rsq <- data.frame(bg.pc.rsq, colnames(bg.pca.dat))
 colnames(bg.pc.rsq) <- c('rsq','trait')
 bg.pc.rsq <- bg.pc.rsq[order(bg.pc.rsq$rsq, decreasing = T),]
 
-#pick the two traits we like - root diamter and root depth.-----
-bg.pc.rsq <- bg.pc.rsq[bg.pc.rsq$trait %in% c('Mean_Dia_C_mm','rootDepth_cm'),]
+#pick the two traits we like - root diameter and root depth.-----
+bg.pc.rsq <- bg.pc.rsq[bg.pc.rsq$trait %in% c('Mean_Dia_C_mm','RMF'),]
 
 #specify trait labels.
-bg.trait.lab <- c('root diameter (mm)','root depth (cm)')
+bg.trait.lab <- c('root diameter (mm)','RMF')
 subpanel.lab <- c('(B)','(C)')
+bg.pc.rsq.annotate <- c(expression(~R^2~" = 0.71"), expression(~R^2~" = 0.39")) 
 
 #Make PCA plot and top 2 regressions w/ PC1 plot.----
 #bg.pca.plot <- ggbiplot(bg.pca,  varname.adjust = 1.1) + labs(tag = 'A')
@@ -76,9 +77,10 @@ for(i in 1:2){
     scale_x_continuous(expand = expand_scale(mult = c(.02, .02)))  + #change where x-axis cuts off.
     theme(axis.text.x=element_text(size=rel(0.9))) +                  #reduce x-axis text size.
     geom_abline(slope = coef(fit)[2], intercept = coef(fit)[1], size = 1) + #add regression line.
-    labs(tag = subpanel.lab[i])
+    labs(tag = subpanel.lab[i])+
+    ggtitle(bg.pc.rsq.annotate[i])
+  
   }
-
 
 #Specify png output.----
 png(output.path, width=9, height= 6, units='in', res=300)
