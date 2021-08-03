@@ -51,7 +51,7 @@ bg.pc.rsq.annotate <- c(expression(~R^2~" = 0.71"), expression(~R^2~" = 0.39"))
 #drop biplot.
 p.var.1 <- round(summary(bg.pca)$importance[2,1]*100,1) #grab proportion variance explained.
 p.var.2 <- round(summary(bg.pca)$importance[2,2]*100,1) #grab proportion variance explained.
-bg.pca.plot <- fviz_pca_biplot(bg.pca, geom='point', repel = T,
+bg.pca.plot <- fviz_pca_biplot(bg.pca, geom=c('text','point'), repel = T,
                                xlab = paste0('belowground PC1 (',p.var.1,'% variance explained)'),
                                ylab = paste0('belowground PC2 (',p.var.2,'% variance explained)'),
                                title = NULL) +

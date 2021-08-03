@@ -42,7 +42,7 @@ ag.pc.rsq.annotate <- c(expression(~R^2~" = 0.87"), expression(~R^2~" = 0.71"))
 #Make PCA plot and top 2 regressions w/ PC1 plot.----
 p.var.1 <- round(summary(ag.pca)$importance[2,1]*100,1) #grab proportion variance explained.
 p.var.2 <- round(summary(ag.pca)$importance[2,2]*100,1) #grab proportion variance explained.
-ag.pca.plot <- fviz_pca_biplot(ag.pca, geom='point', repel = T,
+ag.pca.plot <- fviz_pca_biplot(ag.pca, geom=c('text','point'), repel = T,
                                xlab = paste0('aboveground PC1 (',p.var.1,'% variance explained)'),
                                ylab = paste0('aboveground PC2 (',p.var.2,'% variance explained)'),
                                title = NULL,
