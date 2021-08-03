@@ -2,14 +2,19 @@
 rm(list=ls())
 library(boot)
 library(viridis)
+library(MCMCglmm)
+source('functions/predict_MC.r')
 
 #set output path.----
 output.path <- 'figures/Fig._4.png'
 
 #load data.----
-d <- readRDS('data/surv_models_fitted.rds')
-fit <- d$models$m.rgr_bg
-d   <- d$data
+#d <- readRDS('data/surv_models_fitted.rds')
+#fit <- d$models$m.rgr_bg
+#d <- d$data
+d <- readRDS('data/phylo_surv_models_fitted.rds')
+fit <- d$phylo.models$models$m.rgr_bg
+d   <- d$phylo.models$data
 
 #grab low and high RGR values, make low and high RGR dat, detrend.----
 rgr.rel <- quantile(d$RGR, probs = c(0.2, 0.8))
@@ -19,8 +24,8 @@ colnames(lo.dat) <- c('RGR','bg.PC1')
 colnames(hi.dat) <- c('RGR','bg.PC1')
 
 #generate detrended values.
-lo.detrend <- resid(fit) + predict(fit, newdata = lo.dat)
-hi.detrend <- resid(fit) + predict(fit, newdata = hi.dat)
+lo.detrend <- fit$residuals + predict_MC(fit, newdat = lo.dat)$predicted
+hi.detrend <- fit$residuals + predict_MC(fit, newdat = hi.dat)$predicted
 
 #Generate predictions across RGR range w/ different PC1 scores.----
 pc1 <- quantile(d$bg.PC1, probs = c(0.05, 0.5, 0.95)) #5%, 50% and 95% quantiles of PC1
@@ -38,13 +43,14 @@ for(i in 1:length(pc1)){
 pred.list <- list()
 se.list <- list()
 for(i in 1:length(dat.list)){
-  preds <- predict(fit, newdata = dat.list[[i]], se.fit = T)
-  lo <- inv.logit(preds$fit - preds$se.fit)
-  hi <- inv.logit(preds$fit + preds$se.fit)
+  output <- predict_MC(fit, newdat = dat.list[[i]])
+  preds <- output$predicted
+  lo <- inv.logit(output$loSE)
+  hi <- inv.logit(output$hiSE)
   se.out <- list(lo, hi)
   names(se.out) <- c('lo','hi')
-  pred.list[[i]] <- inv.logit(preds$fit)
-  se.list[[i]] <-se.out
+  pred.list[[i]] <- inv.logit(preds)
+    se.list[[i]] <-se.out
 }
 
 #global chart options.----

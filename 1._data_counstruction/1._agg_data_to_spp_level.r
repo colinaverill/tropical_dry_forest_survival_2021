@@ -115,14 +115,15 @@ ps.avg <- ps.avg[order(match(ps.avg$spp, lf.avg$spp)),]
 lf.avg <- merge(lf.avg, ps.avg)
 
 #Drop aboveground traits for a reviewer.----
-lf.avg$E <- NULL
-lf.avg$d13C <- NULL
-lf.avg$perimeter_allLeaves_cm <- NULL
-lf.avg$leaf.compound <- NULL
-lf.avg$woodDensity <- NULL
-lf.avg$WUE <- NULL
-lf.avg$petioleLength_mm <- NULL
-lf.avg$LMF <- NULL
+lf.sub <- lf.avg
+lf.sub$E <- NULL
+lf.sub$d13C <- NULL
+lf.sub$perimeter_allLeaves_cm <- NULL
+lf.sub$leaf.compound <- NULL
+lf.sub$woodDensity <- NULL
+lf.sub$WUE <- NULL
+lf.sub$petioleLength_mm <- NULL
+lf.sub$LMF <- NULL
 
 #Generate PC1-3 vectors for above and belowground traits.----
 #only use species we have RGR for.
@@ -136,9 +137,10 @@ rt.pca$spp <- NULL
 rownames(rt.pca) <- lab
 colnames(rt.pca) <- c('root diameter','SRL','RTD','root lateral extent','root depth','RMF')
 rt.pca.mod <- prcomp(rt.pca, center = T, scale = T)
-rt.pca.out <- rt.pca.mod$x[,1:3]
+rt.pca.out <- data.frame(rt.pca.mod$x[,1:3])
 colnames(rt.pca.out) <- c('bg.PC1','bg.PC2','bg.PC3')
 rownames(rt.pca.out) <- lab
+rt.pca.out$spp <- lab
 
 #aboveground PCA
 lf.pca <- lf.avg
@@ -154,9 +156,25 @@ colnames(lf.pca) <- c('spp','petiole length', 'thickness', 'leaf area', 'SLA', '
   #                    'dispersal mode', 'seed mass', 'wood density', 'E', 'Amax', 'WUE')
 lf.pca$spp <- NULL
 lf.pca.mod <- prcomp(lf.pca, center = T, scale = T)
-lf.pca.out <- lf.pca.mod$x[,1:3]
+lf.pca.out <- data.frame(lf.pca.mod$x[,1:3])
 colnames(lf.pca.out) <- c('ag.PC1','ag.PC2','ag.PC3')
 rownames(lf.pca.out) <- lab
+lf.pca.out$spp <- lab
+
+#aboveground subset PCA.
+lf.sub.pca <- lf.sub
+lf.sub.pca <- lf.sub.pca[lf.sub.pca$spp %in% gs.sub,]
+lab <- lf.sub.pca$spp
+rownames(lf.sub.pca) <- lab
+colnames(lf.sub.pca) <- c('spp','thickness', 'leaf area', 'SLA', 'leaf density', 'crown radius', 'SMF',
+                      'total leaf area', 'C:N','leaf habit', 'deltaLWP',
+                      'dispersal mode', 'seed mass', 'Amax')
+lf.sub.pca$spp <- NULL
+lf.sub.pca.mod <- prcomp(lf.sub.pca, center = T, scale = T)
+lf.pca.sub.out <- data.frame(lf.sub.pca.mod$x[,1:3])
+colnames(lf.pca.sub.out) <- c('ag.sub.PC1','ag.sub.PC2','ag.sub.PC3')
+rownames(lf.pca.sub.out) <- lab
+lf.pca.sub.out$spp <- lab
 
 #all trait PCA.
 rt.pca$spp <- rownames(rt.pca)
@@ -166,9 +184,10 @@ all.pca <- all.pca[complete.cases(all.pca),]
 lab <- all.pca$spp
 all.pca$spp <- NULL
 all.pca.mod <- prcomp(all.pca, center = T, scale = T)
-all.pca.out <- all.pca.mod$x[,1:3]
+all.pca.out <- data.frame(all.pca.mod$x[,1:3])
 colnames(all.pca.out) <- c('all.PC1','all.PC2','all.PC3')
 rownames(all.pca.out) <- lab
+all.pca.out$spp <- lab
 
 #Make list, do merging.----
 all.dat <- merge(gs.avg , lf.avg)
@@ -185,10 +204,13 @@ all.dat <- merge(all.dat, to_merge, all.x = T)
 to_merge <- data.frame(all.pca.out)
 to_merge$spp <- rownames(to_merge)
 all.dat <- merge(all.dat, to_merge, all.x = T)
+#merge in subset of ag PCA vectors.
+to_merge <- data.frame(lf.pca.sub.out)
+all.dat <- merge(all.dat, to_merge, all.x = T)
 
 #form output list.
-output <- list(gs.avg,rt.avg,lf.avg,all.dat,lf.pca.out,rt.pca.out,lf.pca.mod,rt.pca.mod,all.pca.mod)
-names(output) <- c('gs','bg','ag','all.dat','ag.pca','bg.pca','ag.pca.mod','bg.pca.mod','all.pca.mod')
+output <- list(gs.avg,rt.avg,lf.avg,all.dat,lf.pca.out,rt.pca.out,lf.pca.mod,rt.pca.mod,all.pca.mod,lf.pca.sub.out,lf.sub.pca.mod)
+names(output) <- c('gs','bg','ag','all.dat','ag.pca','bg.pca','ag.pca.mod','bg.pca.mod','all.pca.mod','ag.sub.pca','ag.sub.pca.mod')
 
 #save output.----
 saveRDS(output, output.path)

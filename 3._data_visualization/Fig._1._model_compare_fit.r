@@ -1,4 +1,4 @@
-#visualizing best fits.
+#visualizing best fits, based on PGLS models.
 #clear environment, load packages.
 rm(list=ls())
 library(boot)
@@ -7,7 +7,9 @@ library(boot)
 output.path <- 'figures/Fig._1.png'
 
 #load data.----
-d <- readRDS('data/surv_models_fitted.rds')
+#d <- readRDS('data/surv_models_fitted.rds')
+d <- readRDS('data/phylo_surv_models_fitted.rds') #need observed y-values stored somewhere.
+d <- d$phylo.models
 
 #png save line.----
 png(output.path, width=9, height= 5, units='in', res=300)
@@ -26,8 +28,8 @@ olab.cex <- 1.2
 
 #panel 1- rsq adjusted values ranked.----
 z <- d$rsq.sum
-z <- z[!(grepl('wp', z$mod.lab)),] #original figure did not have whole-plant (wp) models.
-#z <- z[order(z$rsq.adj),]
+z <- z[!(grepl('wp'    , z$mod.lab)),] #original figure did not have whole-plant (wp) models.
+z <- z[!(grepl('ag.sub', z$mod.lab)),] #original figure did not have subset of ag traits.
 z$lab <- c('aboveground\n traits','belowground\n traits','relative growth\n rate (RGR)','aboveground\n traits + RGR','belowground\n traits + RGR')
 
 lty.o <- par("lty") #remember current grahpic setting.
@@ -47,8 +49,10 @@ text(cex=1, x= 0.7+pos, y=-0.02, z$lab, xpd=TRUE, srt = 90, adj=1)
 
 #Panel 2 - visualize best model.----
 m <- d$models$m.rgr_bg
-plot(inv.logit(m$model[,1]) ~ inv.logit(m$fitted.values), bty = 'l', pch = 16, cex = 2, xlab = NA, ylab = NA)
-abline(lm(inv.logit(m$model[,1]) ~ inv.logit(m$fitted.values)), lwd = 2, lty = 1)
+#plot(inv.logit(m$model[,1]) ~ inv.logit(m$fitted.values), bty = 'l', pch = 16, cex = 2, xlab = NA, ylab = NA)
+#abline(lm(inv.logit(m$model[,1]) ~ inv.logit(m$fitted.values)), lwd = 2, lty = 1)
+plot(d$data$survival ~ inv.logit(m$fitted.values), bty = 'l', pch = 16, cex = 2, xlab = NA, ylab = NA)
+abline(lm(d$data$survival ~ inv.logit(m$fitted.values)), lwd = 2, lty = 1)
 #setup Rsq label.
 rsq <- round(d$rsq.sum[d$rsq.sum$mod.lab == 'm.rgr_bg',]$rsq.adj, 2)
 rsq.lab <- bquote({R^2}[adj] == .(rsq))

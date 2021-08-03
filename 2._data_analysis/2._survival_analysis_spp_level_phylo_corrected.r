@@ -11,7 +11,7 @@ output.path <- 'data/phylo_surv_models_fitted.rds'
 #load data.----
 d <- readRDS('data/phase1_for_analysis.rds')
 phy <- read.tree('data/PRTSBtree.tre')
-dat <- d$all.dat[,c('spp','phase1_surv_yr2','phase1_RGR_yr2','bg.PC1','bg.PC2','bg.PC3','ag.PC1','ag.PC2','ag.PC3','all.PC1')]
+dat <- d$all.dat[,c('spp','phase1_surv_yr2','phase1_RGR_yr2','bg.PC1','bg.PC2','bg.PC3','ag.PC1','ag.PC2','ag.PC3','all.PC1','ag.sub.PC1','ag.sub.PC2','ag.sub.PC3')]
 colnames(dat)[2:3] <- c('survival','RGR')
 #get logit transformed survival.
 dat$surv.logit <- logit(dat$survival)
@@ -19,11 +19,12 @@ dat <- dat[complete.cases(dat),]
 
 #clean up the tree.
 phy$node.label <- NULL
+
+#phylo-analysis priors.
 phy <- force.ultrametric(phy)
 rnd <- inverseA(phy)$Ainv
 #Will Pearse- priors on residual phylogenetic autocorrelation terms.
 priors <- list(R=list(V=1, nu=0.002), G=list(G1=list(V=1, nu=0.002)))
-
 
 #clean up species names so we can actually match phylogeny to dataframe.
 spp <- as.character(dat$spp)
@@ -66,22 +67,25 @@ names(output.null) <- c('models','rsq.sum','data')
 
 
 #fit regression models WITH phylogeny.----
-m.rgr     <- MCMCglmm(surv.logit ~ RGR        , random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
-m.ag      <- MCMCglmm(surv.logit ~  ag.PC1    , random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
-m.bg      <- MCMCglmm(surv.logit ~  bg.PC1    , random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
-m.wp      <- MCMCglmm(surv.logit ~ all.PC1    , random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
-m.ag_rgr  <- MCMCglmm(surv.logit ~ RGR* ag.PC1, random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
-m.bg_rgr  <- MCMCglmm(surv.logit ~ RGR* bg.PC1, random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
-m.wp_rgr  <- MCMCglmm(surv.logit ~ RGR*all.PC1, random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
-
+m.rgr        <- MCMCglmm(surv.logit ~ RGR            , random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
+m.ag         <- MCMCglmm(surv.logit ~  ag.PC1        , random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
+m.ag.sub     <- MCMCglmm(surv.logit ~  ag.sub.PC1    , random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
+m.bg         <- MCMCglmm(surv.logit ~  bg.PC1        , random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
+m.wp         <- MCMCglmm(surv.logit ~ all.PC1        , random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
+m.ag_rgr     <- MCMCglmm(surv.logit ~ RGR* ag.PC1    , random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
+m.bg_rgr     <- MCMCglmm(surv.logit ~ RGR* bg.PC1    , random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
+m.wp_rgr     <- MCMCglmm(surv.logit ~ RGR*all.PC1    , random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
+m.ag.sub_rgr <- MCMCglmm(surv.logit ~ RGR* ag.sub.PC1, random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
 #save model list.
-mod.list.phylo <- list(m.ag, m.bg, m.wp, m.rgr, m.ag_rgr, m.bg_rgr, m.wp_rgr)
-mod.lab  <-    c('m.ag','m.bg','m.wp','m.rgr','m.rgr_ag','m.rgr_bg','m.rgr_wp')
+mod.list.phylo <- list(m.ag, m.bg, m.wp, m.ag.sub, m.rgr, m.ag_rgr, m.bg_rgr, m.wp_rgr, m.ag.sub_rgr)
+mod.lab  <-    c('m.ag','m.bg','m.wp', 'm.ag.sub','m.rgr','m.rgr_ag','m.rgr_bg','m.rgr_wp','m.ag.sub_rgr')
 names(mod.list.phylo) <- mod.lab
 
-#add fitted values to model objects.
+#add fitted values and residuals to model objects.
 for(i in 1:length(mod.list.phylo)){
   mod.list.phylo[[i]]$fitted.values <- predict(mod.list.phylo[[i]])
+  mod.list.phylo[[i]]$observed      <- dat$surv.logit
+  mod.list.phylo[[i]]$residuals     <- mod.list.phylo[[i]]$observed - mod.list.phylo[[i]]$fitted.values
 }
 
 #get rsq and rsq.adj dataframe.
