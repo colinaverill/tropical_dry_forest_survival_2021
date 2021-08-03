@@ -8,7 +8,6 @@ output.path <- 'data/phase1_for_analysis.rds'
 #load data.----
 wp <- read.csv('data/phase1_whole_plant_traits.csv')  #'whole plant' traits
 lf <- read.csv('data/phase1_leaf_traits.csv')         #leaf traits
-lf$leafDens_g_cm3 <- as.numeric(lf$leafDens_g_cm3)
 rt <- read.csv('data/phase1_root_traits.csv')         #root traits.
 ps <- read.csv('data/VertTraitCoord_PsDataFinal.csv') #photosynthetic traits.
 #growth survival at species level.
