@@ -4,6 +4,9 @@ library(boot) #for logit transforms.
 library(MCMCglmm)
 library(phytools)
 library(caper)
+library(betareg)
+library(performance)
+library(dplyr)
 
 #set output path.----
 output.path <- 'data/phylo_surv_models_fitted.rds'
@@ -13,9 +16,11 @@ d <- readRDS('data/phase1_for_analysis.rds')
 phy <- read.tree('data/PRTSBtree.tre')
 dat <- d$all.dat[,c('spp','phase1_surv_yr2','phase1_RGR_yr2','bg.PC1','bg.PC2','bg.PC3','ag.PC1','ag.PC2','ag.PC3','all.PC1','ag.sub.PC1','ag.sub.PC2','ag.sub.PC3')]
 colnames(dat)[2:3] <- c('survival','RGR')
+
 #get logit transformed survival.
 dat$surv.logit <- logit(dat$survival)
 dat <- dat[complete.cases(dat),]
+dat$spp <- recode_factor(dat$spp, SAMSAM = "ALBSAM")
 
 #clean up the tree.
 phy$node.label <- NULL
@@ -28,7 +33,6 @@ priors <- list(R=list(V=1, nu=0.002), G=list(G1=list(V=1, nu=0.002)))
 
 #clean up species names so we can actually match phylogeny to dataframe.
 spp <- as.character(dat$spp)
-spp <- ifelse(spp == 'SAMSAM','ALBSAM',spp)
 spp <- spp[order(spp)]
 species <- phy$tip.label[order(phy$tip.label)]
 ref <- data.frame(spp,species)
@@ -76,6 +80,7 @@ m.ag_rgr     <- MCMCglmm(surv.logit ~ RGR* ag.PC1    , random=~species, ginverse
 m.bg_rgr     <- MCMCglmm(surv.logit ~ RGR* bg.PC1    , random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
 m.wp_rgr     <- MCMCglmm(surv.logit ~ RGR*all.PC1    , random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
 m.ag.sub_rgr <- MCMCglmm(surv.logit ~ RGR* ag.sub.PC1, random=~species, ginverse=list(species=rnd), data=dat, prior = priors)
+
 #save model list.
 mod.list.phylo <- list(m.ag, m.bg, m.wp, m.ag.sub, m.rgr, m.ag_rgr, m.bg_rgr, m.wp_rgr, m.ag.sub_rgr)
 mod.lab  <-    c('m.ag','m.bg','m.wp', 'm.ag.sub','m.rgr','m.rgr_ag','m.rgr_bg','m.rgr_wp','m.ag.sub_rgr')
@@ -113,3 +118,89 @@ names(output.phylo) <- c('models','rsq.sum','data')
 output <- list(output.null, output.phylo)
 names(output) <- c('raw.models','phylo.models')
 saveRDS(output, output.path)
+
+##----
+
+# compare results of beta regression to MCMCglmm (Reviewer 3 R2 response)
+
+# fit regression models WITH beta regression (no phylogeny) ----
+# convergence issues w/ species level random effect so removed 
+m.rgr.beta       <- betareg(survival ~ RGR, data=dat)
+m.ag.beta        <- betareg(survival ~  ag.PC1, data=dat)
+m.ag.sub.beta     <- betareg(survival ~  ag.sub.PC1, data=dat)
+m.bg.beta        <- betareg(survival ~  bg.PC1, data=dat)
+m.wp.beta        <- betareg(survival ~ all.PC1, data=dat)
+m.ag_rgr.beta     <- betareg(survival ~ RGR* ag.PC1, data=dat)
+m.bg_rgr.beta   <- betareg(survival ~ RGR* bg.PC1, data=dat)
+m.wp_rgr.beta     <- betareg(survival ~ RGR*all.PC1, data=dat)
+m.ag.sub_rgr.beta <- betareg(survival ~ RGR* ag.sub.PC1, data=dat)
+
+#save model list.
+mod.list.beta<- list(m.ag.beta, m.bg.beta, m.wp.beta, m.ag.sub.beta, m.rgr.beta, m.ag_rgr.beta, 
+                     m.bg_rgr.beta, m.wp_rgr.beta, m.ag.sub_rgr.beta)
+mod.lab.beta <-    c('m.ag','m.bg','m.wp', 'm.ag.sub','m.rgr','m.rgr_ag','m.rgr_bg','m.rgr_wp','m.ag.sub_rgr')
+names(mod.list.beta) <- mod.lab
+
+#add fitted values and residuals to model objects.
+for(i in 1:length(mod.list.beta)){
+  mod.list.beta[[i]]$fitted.values <- predict(mod.list.beta[[i]])
+  mod.list.beta[[i]]$observed      <- dat$survival
+  mod.list.beta[[i]]$residuals     <- mod.list.beta[[i]]$observed - mod.list.beta[[i]]$fitted.values
+}
+
+#get rsq and rsq.adj dataframe.
+rsq.pseudo     <- list()
+for(i in 1:length(mod.list.beta)){
+  rsq.pseudo    [[i]] <- summary(mod.list.beta[[i]])$pseudo.r.squared
+}
+rsq.pseudo     <- unlist(rsq.pseudo)
+rsq.sum <- data.frame(mod.lab.beta, rsq.pseudo)
+
+#wrap output.
+output.beta <- list(mod.list.beta, rsq.sum, dat)
+names(output.beta) <- c('models','rsq.sum','data')
+
+# compare R2
+output.beta$rsq.sum
+output.phylo$rsq.sum
+
+
+#----
+# compare beta regression and logit transform fit ffor R3
+
+# plot figures 
+output.path <- 'figures/Reviewer_Fig._3_betaRegCompare.png'
+
+#png save line.----
+png(output.path, width=9, height= 5, units='in', res=300)
+
+
+#global plot settings.----
+line = 1
+cex = 1.2
+side = 3
+adj=-.25
+
+par(mfrow = c(1,2),
+    mar = c(6,5,2,2))
+olab.cex <- 1.2
+
+
+# plot fitted vs. fitted (phylogenetic vs. beta regression)m - best model 
+plot(scale(mod.list.beta$m.rgr_bg$fitted.values), scale(mod.list.phylo$m.rgr_bg$fitted.values), 
+     xlab = "beta regression (scaled fitted values)", 
+     ylab = "logit phylogenetic regression (scaled fitted values)", 
+     main = "best model (Figure 1) - fitted values")
+abline(0, 1)
+
+plot(scale(mod.list.beta$m.rgr_bg$residuals), scale(mod.list.phylo$m.rgr_bg$residuals),
+     xlab = "beta regression (scaled residuals)", 
+     ylab = "logit phylogenetic regression (scaled residuals)", 
+     main = "best model (Figure 1) - residuals")
+abline(0, 1)
+
+#end plot.----
+dev.off()
+
+
+
