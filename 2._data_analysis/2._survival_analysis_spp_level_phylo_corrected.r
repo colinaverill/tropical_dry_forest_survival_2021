@@ -164,21 +164,43 @@ names(output.beta) <- c('models','rsq.sum','data')
 output.beta$rsq.sum
 output.phylo$rsq.sum
 
+
+#----
+# compare beta regression and logit transform fit ffor R3
+
+# plot figures 
+output.path <- 'figures/Reviewer_Fig._3_betaRegCompare.png'
+
+#png save line.----
+png(output.path, width=9, height= 5, units='in', res=300)
+
+
+#global plot settings.----
+line = 1
+cex = 1.2
+side = 3
+adj=-.25
+
+par(mfrow = c(1,2),
+    mar = c(6,5,2,2))
+olab.cex <- 1.2
+
+
 # plot fitted vs. fitted (phylogenetic vs. beta regression)m - best model 
 plot(scale(mod.list.beta$m.rgr_bg$fitted.values), scale(mod.list.phylo$m.rgr_bg$fitted.values), 
      xlab = "beta regression (scaled fitted values)", 
-     ylab = "phylogenetic regression (scaled fitted values)", 
-     main = "best model (Figure 1) - scaled fitted values")
+     ylab = "logit phylogenetic regression (scaled fitted values)", 
+     main = "best model (Figure 1) - fitted values")
 abline(0, 1)
-
 
 plot(scale(mod.list.beta$m.rgr_bg$residuals), scale(mod.list.phylo$m.rgr_bg$residuals),
      xlab = "beta regression (scaled residuals)", 
-     ylab = "phylogenetic regression (scaled residuals)", 
-     main = "best model (Figure 1) - scaled residuals")
+     ylab = "logit phylogenetic regression (scaled residuals)", 
+     main = "best model (Figure 1) - residuals")
 abline(0, 1)
 
-# plot residuals
+#end plot.----
+dev.off()
 
 
 
